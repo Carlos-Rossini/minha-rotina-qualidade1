@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#173d32">
+<meta name="description" content="Controle diário e semanal de atividades da qualidade em LP1 e LP2.">
+<link rel="manifest" href="manifest.json">
+<title>Minha Rotina — Qualidade</title>
+<style>
+:root{--green:#173d32;--green2:#247451;--bg:#f3f6f4;--card:#fff;--ink:#18231d;--muted:#66736b;--line:#dce5df;--red:#a13d35}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--green);color:white;padding:calc(18px + env(safe-area-inset-top)) 18px 20px;border-radius:0 0 22px 22px}
+h1{font-size:23px;margin:0 0 4px}header p{margin:0;color:#d7e7de;font-size:13px}
+main{max-width:760px;margin:auto;padding:14px 14px calc(30px + env(safe-area-inset-bottom))}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.stat{background:#ffffff17;padding:10px;border-radius:12px}.stat span{display:block;font-size:11px;color:#d7e7de}.stat strong{font-size:22px}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0}.nav button{padding:11px 4px;font-size:12px}
+button, input, select, textarea{font:inherit}button{border:0;border-radius:10px;background:var(--green);color:white;padding:12px 14px;font-weight:650;cursor:pointer}button.secondary{background:white;color:var(--green);border:1px solid var(--line)}button.danger{background:#fff0ee;color:var(--red);border:1px solid #f1d1cd}button.small{padding:8px 10px;font-size:13px}
+.area{display:flex;gap:8px;margin-bottom:12px}.area button{flex:1}.area button.active,.nav button.active{background:var(--green2);color:white}
+.panel{display:none}.panel.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #183b2b08}
+h2{font-size:18px;margin:0 0 5px}h3{font-size:15px;margin:0}.muted{color:var(--muted);font-size:13px}.field{display:grid;gap:6px;margin:12px 0}.field label{font-size:13px;font-weight:650}.field input,.field select,.field textarea,.weekrow input{width:100%;border:1px solid #cbd8cf;border-radius:9px;padding:11px;background:white;color:var(--ink)}textarea{min-height:85px;resize:vertical}
+.weekrow{display:grid;grid-template-columns:1fr 90px 86px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #edf1ee}.weekrow:last-child{border-bottom:0}.weekrow label{font-size:13px}.weekrow .check{display:flex;align-items:center;gap:5px;font-size:12px}.weekrow input[type=checkbox]{width:18px;height:18px}
+.progress{height:8px;background:#e6ede8;border-radius:99px;overflow:hidden;margin:8px 0}.progress div{height:100%;background:var(--green2);width:0}
+.checkitem{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid #edf1ee}.checkitem:last-child{border:0}.checkitem input{width:20px;height:20px;accent-color:var(--green2)}.checkitem span{flex:1}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}.pill{border-radius:99px;background:#e7f2eb;color:#1e6b46;padding:4px 8px;font-size:11px;font-weight:700}.pill.pending{background:#fff0d8;color:#825b16}
+.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button{flex:1}.log{border-top:1px solid var(--line);padding:12px 0}.log:first-child{border-top:0}.log p{white-space:pre-wrap;margin:8px 0;font-size:14px}.empty{padding:22px;text-align:center;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:10px}
+@media(max-width:390px){.weekrow{grid-template-columns:1fr 74px 78px;gap:5px}.weekrow label{font-size:12px}.nav button{font-size:11px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Minha Rotina — Qualidade</h1>
+  <p>Lençóis Paulista · Controle semanal e diário</p>
+  <div class="stats">
+    <div class="stat"><span>Registros</span><strong id="statRecords">0</strong></div>
+    <div class="stat"><span>Concluídos</span><strong id="statDone">0</strong></div>
+    <div class="stat"><span>Checklists</span><strong id="statChecks">0/14</strong></div>
+  </div>
+</header>
+<main>
+  <div class="nav">
+    <button class="active" data-panel="metas">Metas</button>
+    <button data-panel="mipd">MIPD CV</button>
+    <button data-panel="checklist">Checklists</button>
+    <button data-panel="historico">Histórico</button>
+  </div>
+  <div class="area"><button id="lp1" class="active">LP1</button><button id="lp2" class="secondary">LP2</button></div>
+
+  <section id="metas" class="panel active">
+    <div class="card">
+      <div class="row"><h2 id="areaTitle">Metas semanais — LP1</h2><span class="pill">Outubro/2026</span></div>
+      <p class="muted">Data de referência inicial: 21/10/2026. Os campos podem ser editados.</p>
+    </div>
+    <div class="card" id="mjcCard"></div>
+    <div class="card" id="plantioCard"></div>
+    <div class="card" id="selecaoCard"></div>
+    <div class="card">
+      <h3>Registrar atividade do dia</h3>
+      <div class="field"><label for="logDate">Data</label><input id="logDate" type="date" value="2026-10-21"></div>
+      <div class="field"><label for="logType">Atividade</label><select id="logType"><option>Avaliação de mudas</option><option>Plantio</option><option>1ª Seleção</option><option>MIPD CV</option><option>Checklist de qualidade</option><option>Laudos</option><option>Não conformidade</option><option>Reunião/treinamento</option><option>Outra atividade</option></select></div>
+      <div class="field"><label for="logQty">Quantidade (se aplicável)</label><input id="logQty" type="number" min="0" placeholder="Ex.: 25"></div>
+      <div class="field"><label for="logStatus">Situação</label><select id="logStatus"><option>Concluída</option><option>Em andamento</option><option>Pendente</option></select></div>
+      <div class="field"><label for="logDesc">Descrição / observações</label><textarea id="logDesc" placeholder="Descreva o que foi realizado, ocorrências e pendências..."></textarea></div>
+      <button id="saveLog" style="width:100%">Salvar atividade</button>
+    </div>
+  </section>
+
+  <section id="mipd" class="panel">
+    <div class="card"><h2 id="mipdTitle">MIPD CV — LP1</h2><p class="muted">Marque a semana após concluir a atividade.</p><div id="mipdRows"></div><div class="progress"><div id="mipdProgress"></div></div><p class="muted" id="mipdSummary"></p></div>
+  </section>
+
+  <section id="checklist" class="panel">
+    <div class="card"><h2 id="checkTitle">Check List — LP1</h2><p class="muted">Marque cada setor verificado. LP1 e LP2 são independentes.</p><div id="checkRows"></div><div class="progress"><div id="checkProgress"></div></div><p class="muted" id="checkSummary"></p><button class="secondary" id="saveChecklist" style="width:100%">Registrar checklist no histórico</button></div>
+  </section>
+
+  <section id="historico" class="panel">
+    <div class="card"><h2>Histórico de atividades</h2><p class="muted">Os registros ficam salvos neste navegador neste aparelho.</p><div class="actions"><button id="exportCsv">Exportar CSV</button><button class="secondary" id="exportTxt">Copiar/baixar relatório</button></div><div id="historyList" style="margin-top:12px"></div></div>
+    <div class="card"><h3>Backup dos dados</h3><p class="muted">Baixe uma cópia para guardar ou transferir. Para usar os mesmos dados em mais de um aparelho, será necessário configurar sincronização online.</p><div class="actions"><button class="secondary" id="backup">Baixar backup JSON</button><button class="secondary" id="restoreBtn">Importar backup</button><input id="restoreFile" type="file" accept="application/json" hidden></div></div>
+  </section>
+  <footer>Minha Rotina — Qualidade · Dados armazenados localmente neste dispositivo.</footer>
+</main>
+<script>
+const WEEKS=['Semana 1','Semana 2','Semana 3','Semana 4','Semana 5'];
+const SECTORS=['IRRIGAÇÃO','MINI JARDIM','CASA DE VEGETAÇÃO','CASA DE SOMBRA','1° SELEÇÃO','2° SELEÇÃO','EXPEDIÇÃO'];
+const fresh=()=>({meta:{LP1:{MJC:['','','','',''],Plantio:['5','5','5','5','5'],Seleção:['2','2','2','2','2']},LP2:{MJC:['','','','',''],Plantio:['5','5','5','5','5'],Seleção:['2','2','2','2','2']}},done:{'LP1-Seleção-0':true,'LP1-MIPD-0':true},checklists:{},logs:[],checkLog:[],notes:''});
+let state;
+try{state=JSON.parse(localStorage.getItem('mrq-data'))||fresh()}catch(e){state=fresh()}
+let area='LP1';
+function save(){localStorage.setItem('mrq-data',JSON.stringify(state));renderStats()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function key(a,t,i){return `${a}-${t}-${i}`}
+function target(t){return t==='Plantio'?5:t==='Seleção'?2:null}
+function renderMetaCard(type,id,title){const vals=state.meta[area][type],goal=target(type),total=vals.reduce((s,v)=>s+(Number(v)||0),0);document.getElementById(id).innerHTML=`<div class="row"><h3>${title}</h3>${goal===null?`<span class="pill">${area==='LP1'?18:33} total informado</span>`:`<span class="pill">Meta mensal: ${goal*5} bandejas</span>`}</div><div>${WEEKS.map((w,i)=>`<div class="weekrow"><label>${w}${goal!==null?`<br><span class="muted">Meta ${goal}</span>`:''}</label><input type="number" min="0" data-type="${type}" data-index="${i}" value="${esc(vals[i])}" placeholder="Realizado" aria-label="${w} ${title}"><label class="check"><input type="checkbox" data-done="${key(area,type,i)}" ${state.done[key(area,type,i)]?'checked':''}> Feita</label></div>`).join('')}</div>${goal!==null?`<div class="row" style="margin-top:10px"><span class="muted">Total realizado</span><strong>${total} / ${goal*5}</strong></div><div class="progress"><div style="width:${Math.min(100,total/(goal*5)*100)}%"></div></div>`:''}`;}
+function renderMeta(){document.getElementById('areaTitle').textContent=`Metas semanais — ${area}`;renderMetaCard('MJC','mjcCard','MJC');renderMetaCard('Plantio','plantioCard','PLANTIO');renderMetaCard('Seleção','selecaoCard','1ª SELEÇÃO');
+document.querySelectorAll('[data-type]').forEach(el=>el.addEventListener('change',e=>{state.meta[area][e.target.dataset.type][+e.target.dataset.index]=e.target.value;save();renderMeta()}));
+document.querySelectorAll('[data-done]').forEach(el=>el.addEventListener('change',e=>{state.done[e.target.dataset.done]=e.target.checked;save();renderStats()}));}
+function renderMIPD(){document.getElementById('mipdTitle').textContent=`MIPD CV — ${area}`;const done=WEEKS.filter((w,i)=>state.done[key(area,'MIPD',i)]).length;document.getElementById('mipdRows').innerHTML=WEEKS.map((w,i)=>`<label class="checkitem"><input type="checkbox" data-mipd="${key(area,'MIPD',i)}" ${state.done[key(area,'MIPD',i)]?'checked':''}><span>${w}</span><span class="pill ${state.done[key(area,'MIPD',i)]?'':'pending'}">${state.done[key(area,'MIPD',i)]?'Concluída':'Pendente'}</span></label>`).join('');document.getElementById('mipdProgress').style.width=`${done*20}%`;document.getElementById('mipdSummary').textContent=`${done} de 5 semanas concluídas`;document.querySelectorAll('[data-mipd]').forEach(el=>el.addEventListener('change',e=>{state.done[e.target.dataset.mipd]=e.target.checked;save();renderMIPD()}))}
+function renderChecklist(){document.getElementById('checkTitle').textContent=`Check List — ${area}`;const count=SECTORS.filter(s=>state.checklists[`${area}-${s}`]).length;document.getElementById('checkRows').innerHTML=SECTORS.map(s=>`<label class="checkitem"><input type="checkbox" data-sector="${esc(s)}" ${state.checklists[`${area}-${s}`]?'checked':''}><span>${s}</span><span class="pill ${state.checklists[`${area}-${s}`]?'':'pending'}">${state.checklists[`${area}-${s}`]?'Feito':'Pendente'}</span></label>`).join('');document.getElementById('checkProgress').style.width=`${count/7*100}%`;document.getElementById('checkSummary').textContent=`${count} de 7 setores verificados`;document.querySelectorAll('[data-sector]').forEach(el=>el.addEventListener('change',e=>{state.checklists[`${area}-${e.target.dataset.sector}`]=e.target.checked;save();renderChecklist()}))}
+function renderHistory(){const box=document.getElementById('historyList');const all=[...state.logs.map(x=>({...x,kind:'Atividade'})),...state.checkLog.map(x=>({...x,kind:'Checklist'}))].sort((a,b)=>(b.date||'').localeCompare(a.date||''));if(!all.length){box.innerHTML='<div class="empty">Nenhum registro ainda. Salve uma atividade ou checklist para começar.</div>';return}box.innerHTML=all.map((r,i)=>`<div class="log"><div class="row"><strong>${esc(r.kind)} · ${esc(r.area)}</strong><span class="pill ${r.status==='Concluída'?'':'pending'}">${esc(r.status||'Registrado')}</span></div><div class="muted">${esc(r.date)} · ${esc(r.type||'Check List')}</div><p>${esc(r.desc||r.summary||'')}</p><button class="danger small" data-delete="${r.kind==='Atividade'?'a':'c'}:${r.id}">Excluir registro</button></div>`).join('');box.querySelectorAll('[data-delete]').forEach(b=>b.addEventListener('click',()=>{if(!confirm('Excluir este registro?'))return;const [k,id]=b.dataset.delete.split(':');if(k==='a')state.logs=state.logs.filter(x=>String(x.id)!==id);else state.checkLog=state.checkLog.filter(x=>String(x.id)!==id);save();renderHistory()}))}
+function renderStats(){document.getElementById('statRecords').textContent=state.logs.length+state.checkLog.length;document.getElementById('statDone').textContent=state.logs.filter(x=>x.status==='Concluída').length;document.getElementById('statChecks').textContent=Object.values(state.checklists).filter(Boolean).length+'/14'}
+function renderAll(){renderMeta();renderMIPD();renderChecklist();renderHistory();renderStats()}
+document.getElementById('lp1').onclick=()=>setArea('LP1');document.getElementById('lp2').onclick=()=>setArea('LP2');
+function setArea(a){area=a;document.getElementById('lp1').className=a==='LP1'?'active':'';document.getElementById('lp2').className=a==='LP2'?'active':'secondary';renderAll()}
+document.querySelectorAll('[data-panel]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-panel]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.panel));});
+document.getElementById('saveLog').onclick=()=>{const desc=document.getElementById('logDesc').value.trim();if(!desc){alert('Informe a descrição da atividade.');return}state.logs.unshift({id:Date.now(),date:document.getElementById('logDate').value||new Date().toISOString().slice(0,10),area,type:document.getElementById('logType').value,qty:document.getElementById('logQty').value,status:document.getElementById('logStatus').value,desc});document.getElementById('logDesc').value='';document.getElementById('logQty').value='';save();renderHistory();alert('Atividade salva no histórico deste aparelho.');};
+document.getElementById('saveChecklist').onclick=()=>{const summary=SECTORS.map(s=>`${state.checklists[`${area}-${s}`]?'[X]':'[ ]'} ${s}`).join('\n');state.checkLog.unshift({id:Date.now(),date:new Date().toISOString().slice(0,10),area,status:'Registrado',summary,desc:`Checklist ${area}\n${summary}`});save();renderHistory();alert('Checklist registrado no histórico.');};
+function download(name,content,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+document.getElementById('exportCsv').onclick=()=>{const rows=[['Data','Área','Tipo','Quantidade','Situação','Descrição'],...state.logs.map(x=>[x.date,x.area,x.type,x.qty,x.status,x.desc]),...state.checkLog.map(x=>[x.date,x.area,'Checklist','',x.status,x.desc])];const csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');download('minha-rotina-qualidade.csv','\ufeff'+csv,'text/csv;charset=utf-8')};
+document.getElementById('exportTxt').onclick=()=>{const lines=['MINHA ROTINA — QUALIDADE','Lençóis Paulista','Gerado em: '+new Date().toLocaleString('pt-BR'),''];for(const a of ['LP1','LP2']){lines.push('=== '+a+' ===');for(const t of ['MJC','Plantio','Seleção']){lines.push(t+(t==='MJC'?` (total informado: ${a==='LP1'?18:33})`:` (meta mensal: ${t==='Plantio'?25:10} bandejas)`));state.meta[a][t].forEach((v,i)=>lines.push(`${WEEKS[i]}: ${v||'não informado'} | ${state.done[key(a,t,i)]?'concluída':'não marcada'}`))}lines.push('MIPD CV: '+WEEKS.map((w,i)=>`${w} ${state.done[key(a,'MIPD',i)]?'[X]':'[ ]'}`).join(' | '));lines.push('Checklist:\n'+SECTORS.map(s=>`${state.checklists[`${a}-${s}`]?'[X]':'[ ]'} ${s}`).join('\n'),'')}lines.push('HISTÓRICO');state.logs.forEach(x=>lines.push(`${x.date} | ${x.area} | ${x.type} | ${x.status} | qtd ${x.qty||'-'}\n${x.desc}\n`));state.checkLog.forEach(x=>lines.push(`${x.date} | ${x.area} | ${x.desc}\n`));download('relatorio-minha-rotina.txt',lines.join('\n'),'text/plain;charset=utf-8')};
+document.getElementById('backup').onclick=()=>download('backup-minha-rotina.json',JSON.stringify(state,null,2),'application/json');
+document.getElementById('restoreBtn').onclick=()=>document.getElementById('restoreFile').click();
+document.getElementById('restoreFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const imported=JSON.parse(await f.text());if(!imported.meta||!imported.logs)throw Error();if(confirm('Importar backup? Isso substituirá os dados atuais neste aparelho.')){state=imported;save();renderAll();alert('Backup importado.')}}catch(err){alert('Não foi possível importar esse arquivo. Selecione um backup JSON válido.')}e.target.value=''};
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+renderAll();
+</script>
+</body>
+</html>

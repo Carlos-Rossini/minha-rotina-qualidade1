@@ -1,0 +1,12 @@
+{
+  "name": "Minha Rotina — Qualidade",
+  "short_name": "Minha Rotina",
+  "description": "Controle semanal de metas, checklists e atividades da qualidade.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6f4",
+  "theme_color": "#173d32",
+  "icons": []
+}
